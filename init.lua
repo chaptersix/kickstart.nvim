@@ -83,12 +83,12 @@ require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
-      'williamboman/mason.nvim',
+      { 'williamboman/mason.nvim', config = true },
       'williamboman/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -100,11 +100,23 @@ require('lazy').setup({
     'hrsh7th/nvim-cmp',
     dependencies = {
       -- Snippet Engine & its associated nvim-cmp source
-      'L3MON4D3/LuaSnip',
+      {
+        'L3MON4D3/LuaSnip',
+        build = (function()
+          -- Build Step is needed for regex support in snippets
+          -- This step is not supported in many windows environments
+          -- Remove the below condition to re-enable on windows
+          if vim.fn.has 'win32' == 1 then
+            return
+          end
+          return 'make install_jsregexp'
+        end)(),
+      },
       'saadparwaiz1/cmp_luasnip',
 
       -- Adds LSP completion capabilities
       'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-path',
 
       -- Adds a number of user-friendly snippets
       'rafamadriz/friendly-snippets',
@@ -112,7 +124,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
+  { 'folke/which-key.nvim',  opts = {} },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -126,11 +138,16 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
       on_attach = function(bufnr)
-        vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk, { buffer = bufnr, desc = 'Preview git hunk' })
-
-        -- don't override the built-in and fugitive keymaps
         local gs = package.loaded.gitsigns
-        vim.keymap.set({ 'n', 'v' }, ']c', function()
+
+        local function map(mode, l, r, opts)
+          opts = opts or {}
+          opts.buffer = bufnr
+          vim.keymap.set(mode, l, r, opts)
+        end
+
+        -- Navigation
+        map({ 'n', 'v' }, ']c', function()
           if vim.wo.diff then
             return ']c'
           end
@@ -138,8 +155,9 @@ require('lazy').setup({
             gs.next_hunk()
           end)
           return '<Ignore>'
-        end, { expr = true, buffer = bufnr, desc = 'Jump to next hunk' })
-        vim.keymap.set({ 'n', 'v' }, '[c', function()
+        end, { expr = true, desc = 'Jump to next hunk' })
+
+        map({ 'n', 'v' }, '[c', function()
           if vim.wo.diff then
             return '[c'
           end
@@ -147,7 +165,37 @@ require('lazy').setup({
             gs.prev_hunk()
           end)
           return '<Ignore>'
-        end, { expr = true, buffer = bufnr, desc = 'Jump to previous hunk' })
+        end, { expr = true, desc = 'Jump to previous hunk' })
+
+        -- Actions
+        -- visual mode
+        map('v', '<leader>hs', function()
+          gs.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end, { desc = 'stage git hunk' })
+        map('v', '<leader>hr', function()
+          gs.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end, { desc = 'reset git hunk' })
+        -- normal mode
+        map('n', '<leader>hs', gs.stage_hunk, { desc = 'git stage hunk' })
+        map('n', '<leader>hr', gs.reset_hunk, { desc = 'git reset hunk' })
+        map('n', '<leader>hS', gs.stage_buffer, { desc = 'git Stage buffer' })
+        map('n', '<leader>hu', gs.undo_stage_hunk, { desc = 'undo stage hunk' })
+        map('n', '<leader>hR', gs.reset_buffer, { desc = 'git Reset buffer' })
+        map('n', '<leader>hp', gs.preview_hunk, { desc = 'preview git hunk' })
+        map('n', '<leader>hb', function()
+          gs.blame_line { full = false }
+        end, { desc = 'git blame line' })
+        map('n', '<leader>hd', gs.diffthis, { desc = 'git diff against index' })
+        map('n', '<leader>hD', function()
+          gs.diffthis '~'
+        end, { desc = 'git diff against last commit' })
+
+        -- Toggles
+        map('n', '<leader>tb', gs.toggle_current_line_blame, { desc = 'toggle git blame line' })
+        map('n', '<leader>td', gs.toggle_deleted, { desc = 'toggle git show deleted' })
+
+        -- Text object
+        map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
       end,
     },
   },
@@ -156,8 +204,13 @@ require('lazy').setup({
     -- Theme inspired by Atom
     'navarasu/onedark.nvim',
     priority = 1000,
+    lazy = false,
     config = function()
-      vim.cmd.colorscheme 'onedark'
+      require('onedark').setup {
+        -- Set a style preset. 'dark' is default.
+        style = 'dark', -- dark, darker, cool, deep, warm, warmer, light
+      }
+      require('onedark').load()
     end,
   },
 
@@ -168,7 +221,7 @@ require('lazy').setup({
     opts = {
       options = {
         icons_enabled = false,
-        theme = 'onedark',
+        theme = 'auto',
         component_separators = '|',
         section_separators = '',
       },
@@ -220,8 +273,8 @@ require('lazy').setup({
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
-  -- require 'kickstart.plugins.autoformat',
-  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.autoformat',
+  require 'kickstart.plugins.debug',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
@@ -231,6 +284,16 @@ require('lazy').setup({
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   { import = 'custom.plugins' },
 }, {})
+-- line numbers
+vim.wo.number = true
+vim.wo.relativenumber = true
+
+
+-- Save on quit
+vim.cmd [[autocmd QuitPre * write]]
+
+-- Save on tab switch
+vim.cmd [[autocmd TabLeave * write]]
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -248,7 +311,7 @@ vim.o.mouse = 'a'
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.o.clipboard = 'unnamedplus'
+-- vim.o.clipboard = 'unnamedplus'
 
 -- Enable break indent
 vim.o.breakindent = true
@@ -363,6 +426,14 @@ vim.keymap.set('n', '<leader>/', function()
   })
 end, { desc = '[/] Fuzzily search in current buffer' })
 
+local function telescope_live_grep_open_files()
+  require('telescope.builtin').live_grep {
+    grep_open_files = true,
+    prompt_title = 'Live Grep in Open Files',
+  }
+end
+vim.keymap.set('n', '<leader>s/', telescope_live_grep_open_files, { desc = '[S]earch [/] in Open Files' })
+vim.keymap.set('n', '<leader>ss', require('telescope.builtin').builtin, { desc = '[S]earch [S]elect Telescope' })
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
 vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
@@ -382,7 +453,12 @@ vim.defer_fn(function()
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
-
+    -- Install languages synchronously (only applied to `ensure_installed`)
+    sync_install = false,
+    -- List of parsers to ignore installing
+    ignore_install = {},
+    -- You can specify additional Treesitter modules here: -- For example: -- playground = {--enable = true,-- },
+    modules = {},
     highlight = { enable = true },
     indent = { enable = true },
     incremental_selection = {
@@ -459,7 +535,9 @@ local on_attach = function(_, bufnr)
   end
 
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+  nmap('<leader>ca', function()
+    vim.lsp.buf.code_action { context = { only = { 'quickfix', 'refactor', 'source' } } }
+  end, '[C]ode [A]ction')
 
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -491,11 +569,18 @@ require('which-key').register {
   ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
   ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
-  ['<leader>h'] = { name = 'More git', _ = 'which_key_ignore' },
+  ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
   ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
+  ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
 }
+-- register which-key VISUAL mode
+-- required for visual <leader>hs (hunk stage) to work
+require('which-key').register({
+  ['<leader>'] = { name = 'VISUAL <leader>' },
+  ['<leader>h'] = { 'Git [H]unk' },
+}, { mode = 'v' })
 
 -- mason-lspconfig requires that these setup functions are called in this order
 -- before setting up the servers.
@@ -572,7 +657,7 @@ cmp.setup {
   mapping = cmp.mapping.preset.insert {
     ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-p>'] = cmp.mapping.select_prev_item(),
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete {},
     ['<CR>'] = cmp.mapping.confirm {
@@ -601,6 +686,7 @@ cmp.setup {
   sources = {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
+    { name = 'path' },
   },
 }
 
