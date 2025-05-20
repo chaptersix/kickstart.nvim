@@ -154,7 +154,7 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
 -- Spell Check
 vim.opt.spell = true
-vim.opt.spelllang = 'en_US'
+-- vim.opt.spelllang = 'en_US'
 -- Preview substitutions live, as you type!
 vim.o.inccommand = 'split'
 
