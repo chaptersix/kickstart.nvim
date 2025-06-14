@@ -5,13 +5,36 @@ return {
   ---@type snacks.Config
   opts = {
     bigfile = { enabled = true },
-    dashboard = { enabled = true },
+    dashboard = { 
+      enabled = true,
+      sections = {
+        { section = "header" },
+        { section = "keys", gap = 1, padding = 1 },
+        { icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
+        { icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
+        { section = "startup" },
+      },
+    },
+    explorer = { 
+      enabled = true,
+      replace_netrw = true,
+    },
     notifier = {
       enabled = true,
       timeout = 3000,
     },
     quickfile = { enabled = true },
     statuscolumn = { enabled = true },
+    terminal = {
+      win = {
+        style = "terminal",
+        position = "float",
+        border = "rounded",
+        width = 0.8,
+        height = 0.8,
+        backdrop = 60,
+      },
+    },
     words = { enabled = true },
     styles = {
       notification = {
@@ -26,6 +49,13 @@ return {
         Snacks.notifier.hide()
       end,
       desc = 'Dismiss All Notifications',
+    },
+    {
+      '<leader>uN',
+      function()
+        Snacks.notifier.show_history()
+      end,
+      desc = 'Toggle Notifications',
     },
     {
       '<leader>bd',
@@ -77,7 +107,7 @@ return {
       desc = 'Rename File',
     },
     {
-      '<c-/>',
+      '<leader>tt',
       function()
         Snacks.terminal()
       end,
@@ -123,6 +153,27 @@ return {
           },
         }
       end,
+    },
+    {
+      '<leader>D',
+      function()
+        Snacks.dashboard()
+      end,
+      desc = 'Dashboard',
+    },
+    {
+        '\\',
+      function()
+        Snacks.explorer()
+      end,
+      desc = 'Explorer',
+    },
+    {
+      '<leader>E',
+      function()
+        Snacks.explorer.reveal()
+      end,
+      desc = 'Explorer (reveal current file)',
     },
   },
   init = function()
