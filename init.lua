@@ -964,15 +964,40 @@ require('lazy').setup({
       init = '⚙',
       keys = '🗝',
       plugin = '🔌',
-      runtime = '💻',
+      run = '🏃',
       require = '🌙',
-      source = '📄',
       start = '🚀',
       task = '📌',
       lazy = '💤 ',
     },
   },
 })
+
+-- Temporary Mason debug function
+vim.api.nvim_create_user_command('DebugMason', function()
+  local mason_ok, mason = pcall(require, 'mason')
+  if not mason_ok then
+    print('Mason not loaded: ' .. mason)
+    return
+  end
+  
+  local mason_lspconfig_ok, mason_lspconfig = pcall(require, 'mason-lspconfig')
+  if not mason_lspconfig_ok then
+    print('Mason-lspconfig not loaded: ' .. mason_lspconfig)
+    return
+  end
+  
+  print('Mason loaded successfully')
+  print('Mason registry path: ' .. vim.fn.stdpath('data') .. '/mason')
+  
+  -- Try to run mason health check manually
+  local health_ok, health = pcall(require, 'mason.health')
+  if health_ok then
+    print('Mason health module found')
+  else
+    print('Mason health module not found: ' .. health)
+  end
+end, {})
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
