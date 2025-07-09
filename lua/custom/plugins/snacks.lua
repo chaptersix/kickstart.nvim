@@ -5,31 +5,41 @@ return {
   ---@type snacks.Config
   opts = {
     bigfile = { enabled = true },
-    dashboard = { 
+    dashboard = {
       enabled = true,
       sections = {
-        { section = "header" },
-        { section = "keys", gap = 1, padding = 1 },
-        { icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
-        { icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
-        { section = "startup" },
+        { section = 'header' },
+        { section = 'keys', gap = 1, padding = 1 },
+        { icon = ' ', title = 'Recent Files', section = 'recent_files', indent = 2, padding = 1 },
+        { icon = ' ', title = 'Projects', section = 'projects', indent = 2, padding = 1 },
+        { section = 'startup' },
       },
     },
-    explorer = { 
+    explorer = {
       enabled = true,
       replace_netrw = true,
     },
+    picker = {
+      hidden = true,
+      ignored = false,
+    },
+    scroll = { enabled = true },
+    indent = { enabled = true },
     notifier = {
       enabled = true,
       timeout = 3000,
     },
-    quickfile = { enabled = true },
-    statuscolumn = { enabled = true },
+    quickfile = {
+      enabled = true,
+    },
+    statuscolumn = {
+      enabled = true,
+    },
     terminal = {
       win = {
-        style = "terminal",
-        position = "float",
-        border = "rounded",
+        style = 'terminal',
+        position = 'float',
+        border = 'rounded',
         width = 0.8,
         height = 0.8,
         backdrop = 60,
@@ -107,18 +117,18 @@ return {
       desc = 'Rename File',
     },
     {
+      '<leader>z',
+      function()
+        Snacks.zen()
+      end,
+      desc = 'Toggle Zen Mode',
+    },
+    {
       '<leader>tt',
       function()
         Snacks.terminal()
       end,
       desc = 'Toggle Terminal',
-    },
-    {
-      '<c-_>',
-      function()
-        Snacks.terminal()
-      end,
-      desc = 'which_key_ignore',
     },
     {
       ']]',
@@ -137,24 +147,6 @@ return {
       mode = { 'n', 't' },
     },
     {
-      '<leader>N',
-      desc = 'Neovim News',
-      function()
-        Snacks.win {
-          file = vim.api.nvim_get_runtime_file('doc/news.txt', false)[1],
-          width = 0.6,
-          height = 0.6,
-          wo = {
-            spell = false,
-            wrap = false,
-            -- signcolumn = "yes",
-            statuscolumn = ' ',
-            conceallevel = 3,
-          },
-        }
-      end,
-    },
-    {
       '<leader>D',
       function()
         Snacks.dashboard()
@@ -162,18 +154,11 @@ return {
       desc = 'Dashboard',
     },
     {
-        '\\',
+      '\\',
       function()
         Snacks.explorer()
       end,
       desc = 'Explorer',
-    },
-    {
-      '<leader>E',
-      function()
-        Snacks.explorer.reveal()
-      end,
-      desc = 'Explorer (reveal current file)',
     },
   },
   init = function()
