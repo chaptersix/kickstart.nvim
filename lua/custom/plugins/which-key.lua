@@ -21,6 +21,10 @@ return {
       { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       { '<leader>g', group = '[G]it' },
       { '<leader>f', group = '[F]ind' },
+      { '<leader>x', group = 'Diagnostics' },
+      { '<leader>q', group = 'Session/Quickfix' },
+      { '<leader>m', group = '[M]arkdown' },
+      { '<leader>u', group = '[U]ndo' },
     },
   },
 }
