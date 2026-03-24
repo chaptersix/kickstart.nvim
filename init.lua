@@ -207,6 +207,9 @@ vim.keymap.set({ 'n', 'v' }, '<leader>P', '"+P', { desc = 'Paste before from sys
 vim.keymap.set('n', 'H', '<cmd>bprevious<cr>', { desc = 'Previous buffer' })
 vim.keymap.set('n', 'L', '<cmd>bnext<cr>', { desc = 'Next buffer' })
 
+-- Exit terminal mode with a shortcut that is easier to discover than <C-\><C-n>
+vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
@@ -247,13 +250,12 @@ vim.api.nvim_create_autocmd('VimEnter', {
   callback = function()
     local arg = vim.fn.argv(0)
     if arg ~= '' and vim.fn.isdirectory(arg) == 1 then
-      -- Change to the directory
       vim.cmd.cd(arg)
-      -- Delete the directory buffer
-      vim.cmd.bdelete()
-      -- Open fff file finder
       vim.schedule(function()
-        require('fff').find_files()
+        local ok, err = pcall(function() require('fff').find_files() end)
+        if not ok then
+          vim.notify('fff failed: ' .. tostring(err), vim.log.levels.ERROR)
+        end
       end)
     end
   end,
@@ -1023,8 +1025,9 @@ require('lazy').setup({
       init = '⚙',
       keys = '🗝',
       plugin = '🔌',
-      run = '🏃',
+      runtime = '💻',
       require = '🌙',
+      source = '📄',
       start = '🚀',
       task = '📌',
       lazy = '💤 ',

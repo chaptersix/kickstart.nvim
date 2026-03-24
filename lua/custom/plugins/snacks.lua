@@ -40,6 +40,13 @@ return {
         height = 0.3,
       },
     },
+    lazygit = {
+      win = {
+        style = 'float',
+        width = 0.9,
+        height = 0.9,
+      },
+    },
     words = { enabled = true },
     styles = {
       notification = {
