@@ -4,9 +4,6 @@ return {
   event = { 'FocusLost', 'BufLeave' },
   opts = {
     enabled = true,
-    execution_message = {
-      enabled = false, -- don't show "saved" message
-    },
     trigger_events = {
       immediate_save = { 'BufLeave', 'FocusLost' },
       defer_save = {},

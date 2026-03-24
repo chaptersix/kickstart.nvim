@@ -13,7 +13,7 @@ return {
       lualine_a = {
         { 'mode', separator = { left = '' }, right_padding = 2 },
       },
-      lualine_b = { 'filename', 'branch' },
+      lualine_b = { { 'filename', path = 1 }, 'branch' },
       lualine_c = {
         '%=', -- center
         { 'diagnostics', sources = { 'nvim_diagnostic' } },

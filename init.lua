@@ -100,6 +100,9 @@ vim.g.have_nerd_font = true
 
 -- Make line numbers default
 vim.o.number = true
+
+-- Enable per-project config via .nvim.lua files
+vim.o.exrc = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
 -- vim.o.relativenumber = true
@@ -428,6 +431,30 @@ require('lazy').setup({
           find_files = {
             hidden = true,       -- include dotfiles
           },
+          marks = {
+            attach_mappings = function(_, map)
+              map('i', '<C-d>', function(prompt_bufnr)
+                local action_state = require 'telescope.actions.state'
+                local actions = require 'telescope.actions'
+                local entry = action_state.get_selected_entry()
+                if entry and entry.value then
+                  local mark = entry.value:match('^%S+')
+                  -- Only delete user marks (a-z, A-Z, 0-9)
+                  if mark and mark:match('^[a-zA-Z0-9]$') then
+                    -- Close telescope first (returns to original buffer for lowercase marks)
+                    actions.close(prompt_bufnr)
+                    vim.schedule(function()
+                      vim.cmd('delmarks ' .. mark)
+                      require('telescope.builtin').marks()
+                    end)
+                  else
+                    vim.notify('Cannot delete special mark: ' .. mark, vim.log.levels.WARN)
+                  end
+                end
+              end)
+              return true
+            end,
+          },
         },
         extensions = {
           ['ui-select'] = { require('telescope.themes').get_dropdown() },
@@ -653,6 +680,7 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- clangd = {},
+        buf_ls = {}, -- Protocol Buffers LSP
         pyright = {
           settings = {
             python = {
@@ -876,20 +904,16 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
+    'ellisonleao/gruvbox.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
-        styles = {
-          comments = { italic = false }, -- Disable italics in comments
+      require('gruvbox').setup {
+        italic = {
+          comments = false,
         },
       }
 
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'gruvbox'
     end,
   },
 

@@ -4,9 +4,34 @@ return {
   dependencies = { 'nvim-lua/plenary.nvim' },
   cmd = 'Spectre',
   keys = {
-    { '<leader>sr', function() require('spectre').open() end, desc = 'Search & Replace (Spectre)' },
-    { '<leader>sw', function() require('spectre').open_visual({ select_word = true }) end, desc = 'Search current word' },
-    { '<leader>sf', function() require('spectre').open_file_search({ select_word = true }) end, desc = 'Search in file' },
+    {
+      '<leader>rr',
+      function()
+        require('spectre').open()
+      end,
+      desc = '[R]eplace (Spectre)',
+    },
+    {
+      '<leader>rc',
+      function()
+        require('spectre').close()
+      end,
+      desc = '[R]eplace (Spectre)',
+    },
+    {
+      '<leader>rw',
+      function()
+        require('spectre').open_visual { select_word = true }
+      end,
+      desc = '[R]eplace current [W]ord',
+    },
+    {
+      '<leader>rf',
+      function()
+        require('spectre').open_file_search { select_word = true }
+      end,
+      desc = '[R]eplace in [F]ile',
+    },
   },
   opts = {
     open_cmd = 'noswapfile vnew',

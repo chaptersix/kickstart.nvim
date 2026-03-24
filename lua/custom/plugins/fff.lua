@@ -24,5 +24,12 @@ return {
       end,
       desc = 'FFFind files',
     },
+    {
+      'fg',
+      function()
+        require('fff').live_grep()
+      end,
+      desc = 'FFFind in files (grep)',
+    },
   },
 }
